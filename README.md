@@ -54,6 +54,16 @@ python run.py
 - доступ можно ограничить через `ADMINS` в `.env`
 - пресет лежит в `presets/rig_default.yaml`
 
+## Настройка Swap
+```bash
+sudo fallocate -l 100G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+swapon --show
+free -h
+```
+
 ## Подготовка окружения для работы с Spark Lods
 ```bash
 cd ~/
