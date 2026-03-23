@@ -216,6 +216,27 @@ def build_merge_params(paths: ProjectPaths, defaults: MergeDefaults) -> MergePar
     )
 
 
+def build_spark_lods_command(paths: ProjectPaths) -> str:
+    relative_path = paths.linux_path.removeprefix("fdata2/")
+    huge_ws3d_base_path = f"~/Huge_WS3D/GaussianSplatting/data/{relative_path}"
+
+    input_ply = f"{huge_ws3d_base_path}/results/point_cloud.ply"
+    output_dir = f"{huge_ws3d_base_path}/results/spark-js_proportional_lods"
+
+    command = [
+        "npm",
+        "run",
+        "build-lod",
+        "--",
+        q(input_ply),
+        "--ply-level-factors=2,4,8,16,32,64,128,256,512,1024,2048",
+        "--output-dir",
+        q(output_dir),
+        "--ply-levels",
+    ]
+    return " ".join(command)
+
+
 def build_full_pipeline_steps(paths: ProjectPaths, defaults: PipelineDefaults) -> list[tuple[str, str]]:
     train_params = resolve_train_params(paths, defaults)
     merge_params = build_merge_params(paths, defaults.merge)
@@ -237,6 +258,7 @@ def build_full_pipeline_steps(paths: ProjectPaths, defaults: PipelineDefaults) -
         steps.append((f"{index}. train {params.name}", build_train_command(params)))
 
     steps.append((f"{len(steps) + 1}. merge example", build_merge_command(merge_params)))
+    steps.append((f"{len(steps) + 1}. Generate Spark Lods", build_spark_lods_command(paths)))
     return steps
 
 
