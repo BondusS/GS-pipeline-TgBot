@@ -1,0 +1,101 @@
+partition:
+  min_points_visible: 100
+  abs_margin: 1.0
+  partition_method: quantile
+  grid_dim_x: 3
+  grid_dim_y: 3
+  partition_count: 9
+smart_sharpness:
+  amount: 286
+  radius: 0.63
+  reduce_noise: 12
+  iters: 5
+  psf_soften: 1.2
+  pad: 21
+  remove: gaussian
+  linear: false
+  edge_mask: false
+  edge_percentile: 80
+  tex_low_p: 16
+  tex_high_p: 39
+  mask_blur: 0.8
+  mask_gamma: 1.41
+  min_mask: 0.095
+  micro_sigma: 0.8
+  micro_beta: 0.28
+  filter_epsilon: 1.0e-07
+downsample:
+  factor: 2.0
+mask_people:
+  conf_person: 0.35
+  conf_bags: 0.35
+  imgsz: 1280
+mask_sky:
+  classes:
+  - sky
+  invert: true
+unite_masks:
+  mode: and
+train:
+  config_filenames:
+  - BASE_RIG_CONF_D2.yaml
+  - BASE_RIG_CONF_D3.yaml
+  - BASE_RIG_CONF_D5.yaml
+  - LOD_RIG_CONF_D5.yaml
+  stages:
+  - name: main
+    config_filenames:
+    - BASE_RIG_CONF_D5.yaml
+    - BASE_RIG_CONF_D3.yaml
+    - BASE_RIG_CONF_D2.yaml
+    version: main
+    max_splats: null
+    sparse_dir: null
+  - name: lod 1
+    config_filenames:
+    - BASE_RIG_CONF_D5.yaml
+    - BASE_RIG_CONF_D3.yaml
+    version: lod/d=2
+    max_splats: 4000000
+    sparse_dir: null
+  - name: lod 2
+    config_filenames:
+    - BASE_RIG_CONF_D5.yaml
+    - BASE_RIG_CONF_D3.yaml
+    version: lod/d=4
+    max_splats: 2000000
+    sparse_dir: null
+  - name: lod 3
+    config_filenames:
+    - BASE_RIG_CONF_D5.yaml
+    version: lod/d=8
+    max_splats: 1000000
+    sparse_dir: null
+  - name: lod 4
+    config_filenames:
+    - LOD_RIG_CONF_D5.yaml
+    version: lod/d=16
+    max_splats: 500000
+    sparse_dir: null
+  - name: lod 6
+    config_filenames:
+    - LOD_RIG_CONF_D5.yaml
+    version: lod/d=64
+    max_splats: 125000
+    sparse_dir: sparse_raz
+  - name: lod 8
+    config_filenames:
+    - LOD_RIG_CONF_D5.yaml
+    version: lod/d=256
+    max_splats: 40000
+    sparse_dir: sparse_raz
+  block_dim_x: null
+  block_dim_y: null
+merge:
+  trim_abs_margin: 1.0
+  checkpoint_pattern: step=latest_locally
+  cut_radial_bounds: true
+  output_name: point_cloud_2.ply
+  example_block: 0
+  example_epoch: 80
+  example_step: 120560
