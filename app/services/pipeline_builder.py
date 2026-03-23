@@ -230,9 +230,10 @@ def build_full_pipeline_steps(paths: ProjectPaths, defaults: PipelineDefaults) -
         ("4. people masks", build_mask_people_command(paths, defaults.mask_people)),
         ("5. sky masks", build_mask_sky_command(paths, defaults.mask_sky)),
         ("6. unite masks", build_unite_masks_command(paths, defaults.unite_masks)),
+        ("7. downsample masks", build_downsample_command(paths.masks, defaults.downsample)),
     ]
 
-    for index, params in enumerate(train_params, start=7):
+    for index, params in enumerate(train_params, start=8):
         steps.append((f"{index}. train {params.name}", build_train_command(params)))
 
     steps.append((f"{len(steps) + 1}. merge example", build_merge_command(merge_params)))
