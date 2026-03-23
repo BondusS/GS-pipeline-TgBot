@@ -30,7 +30,10 @@ def get_project_configs_status(
     train: TrainDefaults,
     partition: PartitionParams,
 ) -> ProjectConfigsStatus:
-    target_dir = Path(paths.windows_configs_dir)
+    relative_path = paths.linux_path.removeprefix("fdata2/")
+    huge_ws3d_base_path = Path.home() / "Huge_WS3D" / "GaussianSplatting" / "data"
+    target_dir = huge_ws3d_base_path / relative_path / "configs"
+
     expected_files = train.config_filenames
     missing_files = [
         name
