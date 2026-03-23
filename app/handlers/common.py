@@ -43,7 +43,6 @@ logger = logging.getLogger(__name__)
 
 SECTION_LABELS = {
     "partition": "partition",
-    "smart_sharpness": "smart sharpness",
     "downsample": "downsample",
     "mask_people": "people masks",
     "mask_sky": "sky masks",

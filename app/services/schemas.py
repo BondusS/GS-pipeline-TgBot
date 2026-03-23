@@ -50,28 +50,6 @@ class MaskPeopleParams:
 
 
 @dataclass(slots=True)
-class SmartSharpnessParams:
-    amount: int = 286
-    radius: float = 0.63
-    reduce_noise: int = 12
-    iters: int = 5
-    psf_soften: float = 1.20
-    pad: int = 21
-    remove: str = "gaussian"
-    linear: bool = False
-    edge_mask: bool = False
-    edge_percentile: int = 80
-    tex_low_p: int = 16
-    tex_high_p: int = 39
-    mask_blur: float = 0.8
-    mask_gamma: float = 1.41
-    min_mask: float = 0.095
-    micro_sigma: float = 0.80
-    micro_beta: float = 0.28
-    filter_epsilon: float = 1e-07
-
-
-@dataclass(slots=True)
 class MaskSkyParams:
     classes: list[str] = field(default_factory=lambda: ["sky"])
     invert: bool = True
@@ -190,7 +168,6 @@ class MergeParams:
 @dataclass(slots=True)
 class PipelineDefaults:
     partition: PartitionParams = field(default_factory=PartitionParams)
-    smart_sharpness: SmartSharpnessParams = field(default_factory=SmartSharpnessParams)
     downsample: DownsampleParams = field(default_factory=DownsampleParams)
     mask_people: MaskPeopleParams = field(default_factory=MaskPeopleParams)
     mask_sky: MaskSkyParams = field(default_factory=MaskSkyParams)

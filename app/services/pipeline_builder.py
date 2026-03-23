@@ -12,7 +12,6 @@ from app.services.schemas import (
     PartitionParams,
     PipelineDefaults,
     ProjectPaths,
-    SmartSharpnessParams,
     TrainParams,
     TrainStageDefaults,
     UniteMasksParams,
@@ -48,56 +47,6 @@ def build_partition_command(paths: ProjectPaths, params: PartitionParams) -> str
         base += ["--partition_count", str(params.partition_count)]
 
     return " ".join(base)
-
-
-def build_smart_sharpness_command(
-    paths: ProjectPaths,
-    output_dir: str,
-    params: SmartSharpnessParams,
-) -> str:
-    args = [
-        "python",
-        "utils/smart_sharpness.py",
-        q(paths.images),
-        q(output_dir),
-        "--amount",
-        str(params.amount),
-        "--radius",
-        str(params.radius),
-        "--reduce-noise",
-        str(params.reduce_noise),
-        "--iters",
-        str(params.iters),
-        "--psf-soften",
-        str(params.psf_soften),
-        "--pad",
-        str(params.pad),
-        "--remove",
-        q(params.remove),
-        "--edge-percentile",
-        str(params.edge_percentile),
-        "--tex-low-p",
-        str(params.tex_low_p),
-        "--tex-high-p",
-        str(params.tex_high_p),
-        "--mask-blur",
-        str(params.mask_blur),
-        "--mask-gamma",
-        str(params.mask_gamma),
-        "--min-mask",
-        str(params.min_mask),
-        "--micro-sigma",
-        str(params.micro_sigma),
-        "--micro-beta",
-        str(params.micro_beta),
-        "--filter-epsilon",
-        str(params.filter_epsilon),
-    ]
-    if not params.linear:
-        args.append("--no-linear")
-    if not params.edge_mask:
-        args.append("--no-edge-mask")
-    return " ".join(args)
 
 
 def build_downsample_command(input_dir: str, params: DownsampleParams) -> str:
@@ -274,8 +223,8 @@ def build_full_pipeline_steps(paths: ProjectPaths, defaults: PipelineDefaults) -
     steps: list[tuple[str, str]] = [
         ("1. partition", build_partition_command(paths, defaults.partition)),
         (
-            "2. smart sharpness",
-            build_smart_sharpness_command(paths, f"{paths.linux_path}/images_sharp", defaults.smart_sharpness),
+            "2. replace points3d with dense",
+            f"python utils/replace_points3d_with_dense.py {q(paths.linux_path)}",
         ),
         ("3. downsample original images", build_downsample_command(paths.images, defaults.downsample)),
         ("4. people masks", build_mask_people_command(paths, defaults.mask_people)),
