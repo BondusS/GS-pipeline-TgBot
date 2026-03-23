@@ -53,3 +53,14 @@ python run.py
 - бот сейчас **не запускает** shell-команды, а только **генерирует** их
 - доступ можно ограничить через `ADMINS` в `.env`
 - пресет лежит в `presets/rig_default.yaml`
+
+## Подготовка окружения для работы с Spark Lods
+```bash
+cd ~/
+git clone https://git.metasoftpro.ru/WS3D/msp-spark.git
+cd msp-spark
+apt install npm
+curl https://sh.rustup.rs -sSf | sh
+sourse $HOME/.cargo/env
+npm run build-lod --help
+```
