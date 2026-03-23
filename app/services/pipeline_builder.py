@@ -249,7 +249,7 @@ def build_full_pipeline_steps(paths: ProjectPaths, defaults: PipelineDefaults) -
         ),
         ("3. downsample original images", build_downsample_command(paths.images, defaults.downsample)),
         ("4. people masks", build_mask_people_command(paths, defaults.mask_people)),
-        ("5. sky masks", build_mask_sky_command(paths, defaults.mask_sky)),
+        ("5. sky masks (container masking)", build_mask_sky_command(paths, defaults.mask_sky)),
         ("6. unite masks", build_unite_masks_command(paths, defaults.unite_masks)),
         ("7. downsample masks", build_downsample_command(paths.masks, defaults.downsample)),
     ]
@@ -258,7 +258,43 @@ def build_full_pipeline_steps(paths: ProjectPaths, defaults: PipelineDefaults) -
         steps.append((f"{index}. train {params.name}", build_train_command(params)))
 
     steps.append((f"{len(steps) + 1}. merge example", build_merge_command(merge_params)))
-    steps.append((f"{len(steps) + 1}. Generate Spark Lods", build_spark_lods_command(paths)))
+    steps.append((f"{len(steps) + 1}. Generate Spark Lods (out of containers & in special dir [check Readme.md])", build_spark_lods_command(paths)))
+
+    ply_to_ckpt_cmd = " ".join([
+        "python",
+        "utils/ply2ckpt.py",
+        f"{q(paths.linux_path)}/results/spark-js_proportional_lods/point_cloud-lod-L2.ply",
+        "-r",
+        f"{q(paths.linux_path)}/results/main/blocks/block_0/checkpoints/epoch=80-step=169440.ckpt",
+    ])
+    steps.append((f"{len(steps) + 1}. Post-train Spark Lods (ply2ckpt) example", ply_to_ckpt_cmd))
+
+    split_ckpt_cmd = " ".join([
+        "python",
+        "utils/split_ckpt_by_partition.py",
+        f"{q(paths.linux_path)}/results/spark-js_proportional_lods/point_cloud-lod-L2.ckpt",
+        f"{q(paths.linux_path)}/partition/main_partition",
+        f"{q(paths.linux_path)}/results/lod_spark/d=2",
+    ])
+    steps.append((f"{len(steps) + 1}. Post-train Spark Lods (split) example", split_ckpt_cmd))
+
+    start_queue_cmd = " ".join([
+        "python",
+        "utils/start_queue_v2.py",
+        "--initialize_type",
+        "model.initialize_from",
+        "--block_ids",
+        "[1]",
+        f"{q(paths.linux_configs_dir)}/res_3d_d5.yaml",
+        "--version",
+        "lod_spark/d=2",
+        "--max_splats",
+        "4000000",
+        "--max_epochs",
+        "5",
+    ])
+    steps.append((f"{len(steps) + 1}. Post-train Spark Lods (train) example", start_queue_cmd))
+
     return steps
 
 

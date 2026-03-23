@@ -171,16 +171,30 @@ def build_section_text(section: str, waiting_field: str | None = None) -> str:
     return "\n".join(lines)
 
 
-def build_pipeline_message(dataset_path: str, steps: list[tuple[str, str]]) -> str:
-    lines = [
+def build_pipeline_message_chunks(dataset_path: str, steps: list[tuple[str, str]]) -> list[str]:
+    header = [
         "Готовый pipeline preview:",
         "",
         "# dataset",
         f"<pre>{escape(f'DATASET=\"{dataset_path}\"')}</pre>",
     ]
+    chunks = ["\n".join(header)]
+    current_chunk_lines = []
+
     for title, cmd in steps:
-        lines.extend(["", f"# {escape(title)}", f"<pre>{escape(cmd)}</pre>"])
-    return "\n".join(lines)
+        step_lines = ["", f"# {escape(title)}", f"<pre>{escape(cmd)}</pre>"]
+        step_content = "\n".join(step_lines)
+
+        if len("\n".join(chunks[-1:] + current_chunk_lines + [step_content])) > 4000:
+            chunks.append("\n".join(current_chunk_lines))
+            current_chunk_lines = []
+
+        current_chunk_lines.extend(step_lines)
+
+    if current_chunk_lines:
+        chunks.append("\n".join(current_chunk_lines))
+
+    return chunks
 
 
 def build_train_message(commands: list[tuple[str, str]]) -> str:
@@ -595,14 +609,16 @@ async def cmd_pipeline(message: Message, command: CommandObject) -> None:
         paths = build_project_paths(raw)
         defaults = load_pipeline_defaults()
         steps = build_full_pipeline_steps(paths=paths, defaults=defaults)
-        preview = build_pipeline_message(paths.linux_path, steps)
+        chunks = build_pipeline_message_chunks(paths.linux_path, steps)
         configs_markup = build_project_configs_markup(paths, defaults)
+
+        for i, chunk in enumerate(chunks):
+            reply_markup = configs_markup if i == len(chunks) - 1 else None
+            await message.answer(chunk, parse_mode="HTML", reply_markup=reply_markup)
+
     except Exception as e:
         logger.exception("pipeline build failed")
         await send_html_error(message, str(e))
-        return
-
-    await message.answer(preview, parse_mode="HTML", reply_markup=configs_markup)
 
 
 @router.message(F.text)
