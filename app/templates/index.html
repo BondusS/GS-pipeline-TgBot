@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GS Pipeline Generator</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 2em;
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        .form-group { margin-bottom: 1em; }
+        label { display: block; margin-bottom: 0.5em; }
+        input[type="text"] {
+            width: 100%;
+            padding: 0.5em;
+            background-color: #333;
+            color: #e0e0e0;
+            border: 1px solid #555;
+        }
+        .command {
+            background-color: #2a2a2a;
+            padding: 1em;
+            border-radius: 5px;
+            margin-bottom: 1em;
+            position: relative;
+            border: 1px solid #444;
+        }
+        .command pre { white-space: pre-wrap; word-wrap: break-word; }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+            background-color: #444;
+            color: #e0e0e0;
+            border: 1px solid #666;
+        }
+        .error { color: #ff5555; }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GS Pipeline Generator</h1>
+        <form action="/pipeline" method="post">
+            <div class="form-group">
+                <label for="windows_path">Windows Path:</label>
+                <input type="text" id="windows_path" name="windows_path" value="{{ windows_path or '' }}" required>
+            </div>
+            <button type="submit">Generate Pipeline</button>
+        </form>
+
+        {% if error %}
+            <p class="error">Error: {{ error }}</p>
+        {% endif %}
+
+        {% if steps %}
+            <h2>Generated Pipeline</h2>
+            <div class="command">
+                <pre>DATASET="{{ dataset_path }}"</pre>
+                <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+            </div>
+            {% for title, cmd in steps %}
+                <div class="command">
+                    <p># {{ title }}</p>
+                    <pre>{{ cmd }}</pre>
+                    <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <script>
+        function copyToClipboard(button) {
+            const pre = button.parentElement.querySelector('pre');
+            const text = pre.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                button.innerText = 'Copied!';
+                setTimeout(() => {
+                    button.innerText = 'Copy';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
+</body>
+</html>

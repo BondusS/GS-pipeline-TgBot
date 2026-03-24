@@ -1,21 +1,30 @@
-import asyncio
 import logging
+import requests
+import uvicorn
 
-from app.bot import create_bot, create_dispatcher
 from app.config import settings
 from app.logging_setup import setup_logging
+from app.web import app
 
 
-async def main() -> None:
+def get_external_ip():
+    try:
+        return requests.get("https://api.ipify.org").text
+    except requests.RequestException:
+        return "127.0.0.1"
+
+
+def main() -> None:
     setup_logging(settings.log_level)
     logger = logging.getLogger(__name__)
 
-    bot = create_bot(settings.bot_token)
-    dp = create_dispatcher()
+    host = "0.0.0.0"
+    port = 8000
+    external_ip = get_external_ip()
 
-    logger.info("Starting bot")
-    await dp.start_polling(bot)
+    logger.info(f"Starting web server at http://{external_ip}:{port}")
+    uvicorn.run(app, host=host, port=port)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
