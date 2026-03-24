@@ -1,7 +1,10 @@
-# GS Pipeline Tg-Bot
+# GS Pipeline Web UI
 
-Телеграм-бот для генерации команд пайплайна Gaussian Splatting 
+Web UI интерфейс для генерации команд пайплайна Gaussian Splatting 
 по windows-based пути проекта.
+
+Версия в виде Telegram-бота доступна в более раннем коммите: 
+https://github.com/BondusS/GS-pipeline-TgBot/tree/1e307be68f51a2a43d25522b45cda51d9ac911cd
 
 ## Что умеет
 
@@ -19,39 +22,14 @@ cd GS-pipeline-TgBot
 pip install -r requirements.txt
 ```
 
-Нужно подготовить `.env` файл
-1. Напиши https://t.me/BotFather создай бота и получи **BOT_TOKEN**
-2. Напиши https://t.me/userinfobot узнай свой **id** и впиши его в **ADMINS**
-
-Редактировать `.env` можно, например, через **Nano**
-```bash
-nano .env
-```
 ### Запуск
 ```bash
 python run.py
 ```
 
-## Команды
-Самая нужная:
-- `/pipeline <windows_path>`
-
-Остальные:
-- `/path <windows_path>`
-- `/partition <windows_path>`
-- `/train <windows_path>`
-- `/merge <windows_path>`
-
-## Пример
-
-```text
-/pipeline X:\GaussianSplatting\data\RIGs\GoPro\10Cams\20260209\for_GS_Track03
-```
-
 ## Замечания
 
-- бот сейчас **не запускает** shell-команды, а только **генерирует** их
-- доступ можно ограничить через `ADMINS` в `.env`
+- сейчас сервис **не запускает** shell-команды, а только **генерирует** их
 - пресет лежит в `presets/rig_default.yaml`
 
 ## Настройка Swap
