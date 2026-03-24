@@ -53,6 +53,7 @@
         button:hover {
             background-color: #45a049;
         }
+        .create-config-form { margin-top: 2em; }
     </style>
 </head>
 <body>
@@ -71,11 +72,16 @@
         {% endif %}
 
         {% if steps %}
-            <h2>Generated Pipeline</h2>
-            <div class="command">
-                <pre>DATASET="{{ dataset_path }}"</pre>
-                <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+            <div class="create-config-form">
+                <form action="/create-config" method="post">
+                    <input type="hidden" name="windows_path" value="{{ windows_path }}">
+                    <button type="submit">Create Config</button>
+                </form>
             </div>
+            <h2>Generated Pipeline</h2>
+            {% if config_status %}
+                <p class="success">{{ config_status }}</p>
+            {% endif %}
             {% for title, cmd in steps %}
                 <div class="command">
                     <p># {{ title }}</p>

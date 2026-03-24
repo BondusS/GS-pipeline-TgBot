@@ -10,6 +10,7 @@ from fastapi.templating import Jinja2Templates
 from app.services.path_mapper import build_project_paths
 from app.services.pipeline_builder import build_full_pipeline_steps
 from app.services.pipeline_defaults import load_pipeline_defaults
+from app.services.project_configs import create_project_configs
 
 logger = logging.getLogger(__name__)
 app = FastAPI()
@@ -40,6 +41,31 @@ async def generate_pipeline(request: Request, windows_path: str = Form(...)):
         )
     except Exception as e:
         logger.exception("pipeline build failed")
+        return templates.TemplateResponse(
+            "index.html",
+            {"request": request, "error": str(e), "windows_path": windows_path},
+        )
+
+
+@app.post("/create-config", response_class=HTMLResponse)
+async def create_config(request: Request, windows_path: str = Form(...)):
+    try:
+        paths = build_project_paths(windows_path)
+        defaults = load_pipeline_defaults()
+        status = create_project_configs(paths, defaults.train, defaults.partition)
+        steps = build_full_pipeline_steps(paths=paths, defaults=defaults)
+        return templates.TemplateResponse(
+            "index.html",
+            {
+                "request": request,
+                "steps": steps,
+                "dataset_path": paths.linux_path,
+                "windows_path": windows_path,
+                "config_status": f"Configs created: {', '.join(status.expected_files)}",
+            },
+        )
+    except Exception as e:
+        logger.exception("config creation failed")
         return templates.TemplateResponse(
             "index.html",
             {"request": request, "error": str(e), "windows_path": windows_path},
