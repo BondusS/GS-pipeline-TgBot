@@ -95,18 +95,36 @@
     <script>
         function copyToClipboard(button) {
             const pre = button.parentElement.querySelector('pre');
-            console.log('Found pre element:', pre);
             const text = pre.innerText;
-            console.log('Text to copy:', text);
-            navigator.clipboard.writeText(text).then(() => {
-                console.log('Text copied to clipboard');
-                button.innerText = 'Copied!';
-                setTimeout(() => {
-                    button.innerText = 'Copy';
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-            });
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    button.innerText = 'Copied!';
+                    setTimeout(() => {
+                        button.innerText = 'Copy';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy using navigator: ', err);
+                });
+            } else {
+                // Fallback for insecure contexts
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                textArea.style.position = 'absolute';
+                textArea.style.left = '-9999px';
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    button.innerText = 'Copied!';
+                    setTimeout(() => {
+                        button.innerText = 'Copy';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Fallback copy failed: ', err);
+                }
+                document.body.removeChild(textArea);
+            }
         }
     </script>
 </body>
