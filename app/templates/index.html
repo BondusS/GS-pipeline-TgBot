@@ -95,8 +95,11 @@
     <script>
         function copyToClipboard(button) {
             const pre = button.parentElement.querySelector('pre');
+            console.log('Found pre element:', pre);
             const text = pre.innerText;
+            console.log('Text to copy:', text);
             navigator.clipboard.writeText(text).then(() => {
+                console.log('Text copied to clipboard');
                 button.innerText = 'Copied!';
                 setTimeout(() => {
                     button.innerText = 'Copy';

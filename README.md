@@ -50,5 +50,8 @@ cd msp-spark
 apt install npm
 curl https://sh.rustup.rs -sSf | sh
 sourse $HOME/.cargo/env
+cd rust
+cargo build
+cd ..
 npm run build-lod --help
 ```
