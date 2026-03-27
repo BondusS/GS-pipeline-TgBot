@@ -47,9 +47,19 @@ free -h
 cd ~/
 git clone https://git.metasoftpro.ru/WS3D/msp-spark.git
 cd msp-spark
-apt install npm
-curl https://sh.rustup.rs -sSf | sh
-sourse $HOME/.cargo/env
+
+apt update
+apt install -y npm curl build-essential
+
+curl https://sh.rustup.rs -sSf | sh -s -- -y
+source $HOME/.cargo/env
+
+rustup update
+rustup default stable
+
+rustc --version
+cargo --version
+
 cd rust
 cargo build
 cd ..
